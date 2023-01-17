@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Models\Technology;
 use App\Models\Type;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -30,8 +31,10 @@ class ProjectController extends Controller
     public function create()
     {
         $types = Type::all();
+        $technologies = Technology::all();
         //dd($types);
-        return view('admin.projects.create', compact('types'));
+        //dd($technologies);
+        return view('admin.projects.create', compact('types' , 'technologies'));
     }
 
     /**
@@ -47,6 +50,11 @@ class ProjectController extends Controller
         $image_path = Storage::put('uploads_img', $form_data['image']);
         $form_data['image'] = $image_path;
         $project = Project::create($form_data);
+
+        if ($request->has('technologies')) {
+            $project->technologies()->attach($request->technologies);
+        }
+        
         return redirect()->route('admin.projects.index')->with('message', "il nuovo progetto $project->title è stato aggiunto!");
     }
 
@@ -70,7 +78,8 @@ class ProjectController extends Controller
     public function edit(Project $project)
     {
         $types = Type::all();
-        return view('admin.projects.edit', compact('project' , 'types'));
+        $technologies = Technology::all();
+        return view('admin.projects.edit', compact('project' , 'types', 'technologies'));
     }
 
     /**
@@ -85,6 +94,12 @@ class ProjectController extends Controller
         $form_data = $request->validated();
         $form_data['slug'] = Project::generateSlug($form_data['title']);
         $project->update($form_data);
+
+        if ($request->has('technologies')) {
+            $project->technologies()->sync($request->technologies);
+        } else {
+            $project->technologies()->detach();
+        }
 
         return redirect()->route('admin.projects.index')->with('message', "$project->title è stato aggiornato");
     }

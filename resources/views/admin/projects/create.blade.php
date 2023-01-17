@@ -27,6 +27,16 @@
                         </select>
                     </div>
                     <div class="form-group mb-3">
+                        <h4>Technologies</h4>
+                        @foreach ($technologies as $technology)
+                            <div class="form-check">
+                                <input type="checkbox" name="tags[]" id="technology-{{ $technology->id }}" class="form-check-input"
+                                    value="{{ $technology->id }}">
+                                <label for="technology-{{ $technology->id }}" class="form-check-label">{{ $technology->name }}</label>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="form-group mb-3">
                         <label for="image">Image</label>
                         <input type="file" id="image" name="image" class="form-control @error('image') is-invalid @enderror">
                         @error('image')
